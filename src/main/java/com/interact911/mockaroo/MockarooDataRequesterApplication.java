@@ -50,6 +50,7 @@ public class MockarooDataRequesterApplication implements CommandLineRunner  {
 	public void run(String... args) {
 		try {
 			
+			
 			JSONObject results = grabDataFromMockarooFields();
 			
 			JSONArray data = results.getJSONArray("results");
