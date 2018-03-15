@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+    <changeSet author="Interact (generated)" id="1521127596316-1">
+        <createTable tableName="test3">
+            <column autoIncrement="true" name="id" type="int">
+                <constraints primaryKey="true" primaryKeyName="PK_test3"/>
+            </column>
+            <column name="first" type="varchar(50)"/>
+            <column name="last" type="varchar(50)"/>
+            <column name="city" type="varchar(50)"/>
+            <column name="country" type="varchar(50)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Interact (generated)" id="1521127596316-2">
+        <createTable tableName="test_2">
+            <column autoIncrement="true" name="id" type="int">
+                <constraints primaryKey="true" primaryKeyName="PK_test_2"/>
+            </column>
+            <column name="first_name" type="varchar(50)"/>
+            <column name="last_name" type="varchar(50)"/>
+            <column name="city" type="varchar(50)"/>
+            <column name="country" type="varchar(50)"/>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>

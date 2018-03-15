@@ -50,18 +50,19 @@ public class MockarooDataRequesterApplication implements CommandLineRunner  {
 	public void run(String... args) {
 		try {
 			
-			
 			JSONObject results = grabDataFromMockarooFields();
+			System.out.println("Grabbed Data from Mockaroo!");
 			
 			JSONArray data = results.getJSONArray("results");
-			
+	
 			insertDataIntoTable(data);
+			System.out.println("Inserted Data into DB!");
 			
-			System.exit(0);
+			//System.exit(0);
 		} catch (Exception ex) {
 			System.out.println(ex.getMessage());
 			ex.printStackTrace();
-			System.exit(1);
+			//System.exit(1);
 		}
 	}
 	
@@ -88,6 +89,7 @@ public class MockarooDataRequesterApplication implements CommandLineRunner  {
 	
 	public void insertDataIntoTable(JSONArray data) throws SQLException, JSONException {
 		databaseConnector.insertData(data);
+		
 	}
 	
 }
