@@ -103,6 +103,11 @@
     		<version>3.4.1</version>
 		</dependency> 
 
+	<!-- Web added just for H2 console at host:port/h2-console-->
+		<dependency>
+ 			<groupId>org.springframework.boot</groupId>
+ 			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
 
 	</dependencies>
 	
