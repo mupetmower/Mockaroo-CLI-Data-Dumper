@@ -1,4 +1,4 @@
-package com.interact911.configuration;
+package com.mockaroo.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,5 +16,8 @@ public class BeanConfiguration {
 //	    //liquibase.setDataSource(dataSource());
 //	    return liquibase;
 //	}
+	
+	
+	
 	
 }

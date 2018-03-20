@@ -1,25 +1,33 @@
-package com.interact911.mockaroo;
+package com.mockaroo.mockaroo;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.sql.SQLException;
-import java.util.Map;
+
+import javax.persistence.EntityManagerFactory;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.Banner.Mode;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.ComponentScan;
+import org.springframework.boot.Banner.Mode;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 
-import com.interact911.services.DatabaseConnector;
-import com.interact911.services.RestDataRequesterImpl;
+import com.mockaroo.entities.Test_2;
+import com.mockaroo.services.DatabaseConnector;
+import com.mockaroo.services.RestDataRequesterImpl;
 
-@SpringBootApplication
-@ComponentScan(basePackages = { "com.interact911.*"})
-public class MockarooDataRequesterApplication implements CommandLineRunner  {
+@RunWith(SpringRunner.class)
+@DataJpaTest
+@SpringBootTest
+public class MockarooDataRequesterApplicationTests {
 	
 	@Value("${mockaroo_apikey:unknown}")
 	private String mockarooApiKey;
@@ -35,26 +43,21 @@ public class MockarooDataRequesterApplication implements CommandLineRunner  {
     private RestDataRequesterImpl dataRequest;
 
 	@Autowired
-    private DatabaseConnector databaseConnector;
+    private DatabaseConnector databaseConnector;	
 	
 	
-
-	public static void main(String[] args) {
-		//disabled banner, don't want to see the spring logo
-        SpringApplication app = new SpringApplication(MockarooDataRequesterApplication.class);
-        app.setBannerMode(Mode.OFF);
-        app.run(args);
-	}
-	
-	@Override
-	public void run(String... args) {
+	@Test
+	public void contextLoads() {
 		try {
+			int records = 4;
 			
-			JSONObject results = grabDataFromMockarooFields();
+			JSONObject results = grabDataFromMockarooFields(records);
 			System.out.println("Grabbed Data from Mockaroo!");
 			
 			JSONArray data = results.getJSONArray("results");
-	
+			
+			assertThat(data.length()).isEqualTo(records);
+			
 			insertDataIntoTable(data);
 			System.out.println("Inserted Data into DB!");
 			
@@ -64,11 +67,11 @@ public class MockarooDataRequesterApplication implements CommandLineRunner  {
 			ex.printStackTrace();
 			//System.exit(1);
 		}
+				
 	}
 	
 	
-	
-	public JSONObject grabDataFromMockarooFields() throws Exception {
+	public JSONObject grabDataFromMockarooFields(int records) throws Exception {
 		dataRequest.initNewMockarooGenerator();
 		dataRequest.setApiAccessKey(mockarooApiKey);
 		dataRequest.setUriString(requestUri);
@@ -78,12 +81,13 @@ public class MockarooDataRequesterApplication implements CommandLineRunner  {
 		dataRequest.addField("city", "City");
 		dataRequest.addField("country", "Country");
 		
-		JSONObject results = dataRequest.generateCustomDataFromMockaroo(2);		
+		JSONObject results = dataRequest.generateCustomDataFromMockaroo(records);		
 		
 		return results;
 	}
 	
 	public void grabDataFromMockarooSchema(String schemaName) {
+		
 		
 	}
 	
@@ -91,5 +95,7 @@ public class MockarooDataRequesterApplication implements CommandLineRunner  {
 		databaseConnector.insertData(data);
 		
 	}
+
 	
+
 }

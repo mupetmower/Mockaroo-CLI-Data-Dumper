@@ -6,6 +6,6 @@
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
 
 	<include file="generated-create-mockaroo-tables.xml" relativeToChangelogFile="true"/>
-	
+	<include relativeToChangelogFile="true" file="00000000000000_initial_schema.xml"/>
 	
 </databaseChangeLog> 
