@@ -9,15 +9,18 @@ public class RestDataRequesterImpl implements RestDataRequester {
 	
 	private String defaultKey = "c61a4ed0";	
 	private String defaultUri = "https://api.mockaroo.com/api/generate.json";
+	private String defaultSchemaUri = "https://my.api.mockaroo.com/";
 	private MockarooReturnType defaultType = MockarooReturnType.JSON;
 	
 	MockarooConnector mockarooConnector = new MockarooConnector();
 	
 	
-	public String requestDataFromMockarooSchema(String schemaName) {
-		String response = "";
+	public JSONObject requestDataFromMockarooSchema(String schemaName) throws Exception {
 		
-		return response;
+		
+		JSONObject results = mockarooConnector.requestSchema(schemaName);
+		
+		return results;
 	}
 	
 	public JSONObject generateCustomDataFromMockaroo(int recordCount) throws Exception {				
@@ -33,6 +36,7 @@ public class RestDataRequesterImpl implements RestDataRequester {
 		mockarooConnector.setMockarooApiUriString(defaultUri);
 		mockarooConnector.setMockarooApiKey(defaultKey);
 		mockarooConnector.setReturnType(defaultType);
+		mockarooConnector.setSchemaRequestUri(defaultSchemaUri);
 	}	
 	
 	public void setApiAccessKey(String key) {
@@ -41,6 +45,10 @@ public class RestDataRequesterImpl implements RestDataRequester {
 	
 	public void setUriString(String uri) {
 		mockarooConnector.setMockarooApiUriString(uri);
+	}
+	
+	public void setSchemaUri(String uri) {
+		mockarooConnector.setSchemaRequestUri(uri);
 	}
 	
 	public void setReturnType(MockarooReturnType type) {

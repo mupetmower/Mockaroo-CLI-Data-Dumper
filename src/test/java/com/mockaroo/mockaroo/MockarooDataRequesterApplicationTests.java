@@ -18,9 +18,14 @@ import org.springframework.boot.Banner.Mode;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.mockaroo.entities.Person;
 import com.mockaroo.entities.Test_2;
+import com.mockaroo.repositories.PersonRepository;
 import com.mockaroo.services.DatabaseConnector;
 import com.mockaroo.services.RestDataRequesterImpl;
 
@@ -35,6 +40,12 @@ public class MockarooDataRequesterApplicationTests {
 	@Value("${mockaroo_request_uri:unknown}")
 	private String requestUri;
 	
+	@Value("${mockaroo_person_schema_request_url:unknown}")
+	private String personSchemaRequestUri;
+	
+	@Value("${mockaroo_schema_request_url:unknown}")
+	private String schemaRequestUri;
+	
 	//@Value("${mockaroo_request_type:unknown}")
 	//private String requestType;
 	
@@ -43,16 +54,20 @@ public class MockarooDataRequesterApplicationTests {
     private RestDataRequesterImpl dataRequest;
 
 	@Autowired
-    private DatabaseConnector databaseConnector;	
+    private DatabaseConnector databaseConnector;
+	
+	@Autowired
+	private PersonRepository personRepository;
+	
 	
 	
 	@Test
-	public void contextLoads() {
+	public void mockarooDataRequesting() {
 		try {
 			int records = 4;
 			
 			JSONObject results = grabDataFromMockarooFields(records);
-			System.out.println("Grabbed Data from Mockaroo!");
+			System.out.println("Grabbed Custom Data from Mockaroo!");
 			
 			JSONArray data = results.getJSONArray("results");
 			
@@ -60,6 +75,25 @@ public class MockarooDataRequesterApplicationTests {
 			
 			insertDataIntoTable(data);
 			System.out.println("Inserted Data into DB!");
+			
+			//AssertThat table has correct data..
+			
+			
+			
+			System.out.println("Sending schema request. Schema: person");
+			JSONObject schemaResults = grabDataFromMockarooSchema("person");
+			
+			JSONArray schemaData = schemaResults.getJSONArray("results");
+			System.out.println("Got schema data");
+			
+			assertThat(schemaData.length()).isEqualTo(1000);
+			
+			//System.out.println(schemaData.toString());
+			
+			convertAndInsertAll(schemaData, Person.class, personRepository);
+			
+			assertThat(personRepository.count()).isGreaterThanOrEqualTo(schemaData.length());
+			
 			
 			//System.exit(0);
 		} catch (Exception ex) {
@@ -86,15 +120,36 @@ public class MockarooDataRequesterApplicationTests {
 		return results;
 	}
 	
-	public void grabDataFromMockarooSchema(String schemaName) {
+	public JSONObject grabDataFromMockarooSchema(String schemaName) throws Exception {
+		dataRequest.initNewMockarooGenerator();
+		dataRequest.setSchemaUri(schemaRequestUri);
+		dataRequest.setApiAccessKey(mockarooApiKey);
+				
+		JSONObject results = dataRequest.requestDataFromMockarooSchema(schemaName);		
 		
+		return results;		
+	}
+	
+	public <T> void convertAndInsertAll(JSONArray fromArray, Class<T> toClassType, JpaRepository<T, Integer> repo) throws JSONException {
+		for (int i = 0; i < fromArray.length(); i++) {
+			T obj = convert(fromArray.getJSONObject(i), toClassType);
+			repo.save(obj);
+		}
 		
+	}
+	
+	public <T> T convert(JSONObject fromObj, Class<T> toClassType) {
+		ObjectMapper om = new ObjectMapper();
+		om.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+		return om.convertValue(fromObj, toClassType);
 	}
 	
 	public void insertDataIntoTable(JSONArray data) throws SQLException, JSONException {
 		databaseConnector.insertData(data);
 		
 	}
+	
+	
 
 	
 

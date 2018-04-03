@@ -10,7 +10,7 @@ public interface RestDataRequester {
 	
 	public JSONObject generateCustomDataFromMockaroo(int recordCount) throws Exception;
 	
-	public String requestDataFromMockarooSchema(String schemaName);
+	public JSONObject requestDataFromMockarooSchema(String schemaName) throws Exception;
 	
 
 }

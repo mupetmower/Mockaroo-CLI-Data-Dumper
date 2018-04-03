@@ -5,6 +5,10 @@ import java.net.URI;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
+import org.springframework.http.RequestEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -12,9 +16,13 @@ import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.SerializationFeature;
 
-class MockarooConnector {
+public class MockarooConnector {
 	
 	private RestTemplate restTemplate = new RestTemplate();
+	
+	private String schemaRequestUri;
+	
+	private String fullSchemaRequestUri;
 	
 	private String mockarooApiUriStringWithType;
 	
@@ -37,14 +45,28 @@ class MockarooConnector {
 	
 	
 	public JSONObject requestMockarooData() throws Exception {
-		//JSONObject data = new JSONObject();
-		
 		mockarooApiUriStringWithType = mockarooApiUriString + returnType.toString();
 		
 		constructParameterMap();
 		
 		String dataString = restTemplate.postForObject(mockarooApiUriStringWithType, parameterMap, String.class);
 		JSONObject results = new JSONObject( "{ results: " + dataString + " }");
+		
+		return results;
+	}
+	
+	public JSONObject requestSchema(String schemaName) throws Exception {
+		fullSchemaRequestUri = schemaRequestUri + schemaName + "." + returnType.toString();
+		System.out.println(fullSchemaRequestUri);		
+		
+		RequestEntity<Void> request = RequestEntity
+			.get(new URI(fullSchemaRequestUri))
+			.accept(MediaType.APPLICATION_JSON)
+			.header("X-API-Key", mockarooApiKey)
+			.build();
+		
+		ResponseEntity<String> dataString = restTemplate.exchange(request, String.class);
+		JSONObject results = new JSONObject( "{ results: " + dataString.getBody() + " }");
 		
 		return results;
 	}
@@ -81,6 +103,16 @@ class MockarooConnector {
 		if (!fields.isNull(0) || fields.length() != 0) {
 			parameterMap.add("fields", fields.toString());
 		}
+						
+	}
+	
+	private void constructSchemaParameterMap() throws Exception {
+		
+		if (mockarooApiKey.equals("") || mockarooApiKey.isEmpty() || mockarooApiKey == null) {
+			throw new Exception("Mockaroo Api Key is empty.");
+		}
+		
+		
 						
 	}
 	
@@ -158,6 +190,22 @@ class MockarooConnector {
 
 	public void setReturnType(MockarooReturnType returnType) {
 		this.returnType = returnType;
+	}
+
+	public String getFullSchemaRequestUri() {
+		return fullSchemaRequestUri;
+	}
+
+	public void setFullSchemaRequestUri(String fullSchemaRequestUri) {
+		this.fullSchemaRequestUri = fullSchemaRequestUri;
+	}
+
+	public String getSchemaRequestUri() {
+		return schemaRequestUri;
+	}
+
+	public void setSchemaRequestUri(String schemaRequestUri) {
+		this.schemaRequestUri = schemaRequestUri;
 	}
 	
 

@@ -1,0 +1,1 @@
+insert into Person values( 'first', "last", "")
